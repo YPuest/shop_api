@@ -4,32 +4,27 @@ import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Category;
 import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.web.dto.ProductUpdateRequest;
+import com.example.shopapi.web.exception.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(ProductController.class)
 class ProductControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
     @Mock
@@ -40,7 +35,10 @@ class ProductControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(productController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
@@ -57,5 +55,27 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.description").value("Updated Description"))
                 .andExpect(jsonPath("$.price").value(149.99))
                 .andExpect(jsonPath("$.stock").value(10));
+    }
+
+    @Test
+    void markProductAsUnavailable_shouldReturnSuccess() throws Exception {
+        when(productService.markProductAsUnavailable(1L)).thenReturn(new Product("Description", new BigDecimal("100.00"), 5, new Category("Laptop")));
+
+        mockMvc.perform(delete("/products/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Product has been marked as unavailable."));
+    }
+
+    @Test
+    void markProductAsUnavailable_shouldReturnErrorIfProductNotFound() throws Exception {
+        doThrow(new IllegalArgumentException("Product not found"))
+                .when(productService)
+                .markProductAsUnavailable(eq(999L));
+
+        mockMvc.perform(delete("/products/999"))
+                .andExpect(status().isBadRequest())  // Expect HTTP 400 due to GlobalExceptionHandler
+                .andExpect(content().string("Product not found"));
+
+        verify(productService, times(1)).markProductAsUnavailable(eq(999L));
     }
 }

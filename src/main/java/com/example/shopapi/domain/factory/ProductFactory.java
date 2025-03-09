@@ -13,4 +13,10 @@ public class ProductFactory {
     public static Product updateProduct(Product existingProduct, String description, BigDecimal price, int stock) {
         return new Product(description, price, stock, existingProduct.getCategory());
     }
+
+    public static Product markAsUnavailable(Product product) {
+        product.markAsUnavailable();
+
+        return product;
+    }
 }

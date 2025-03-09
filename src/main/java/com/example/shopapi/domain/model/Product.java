@@ -1,8 +1,11 @@
 package com.example.shopapi.domain.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 
+@Getter
 @Entity
 @Table(name = "product")
 public class Product {
@@ -24,6 +27,9 @@ public class Product {
     @Column(nullable = false)
     private int stock;
 
+    @Column(nullable = false)
+    private boolean available = true;
+
     protected Product() {}
 
     public Product(String description, BigDecimal price, int stock, Category category) {
@@ -31,11 +37,10 @@ public class Product {
         this.price = price;
         this.stock = stock;
         this.category = category;
+        this.available = true;
     }
 
-    public Long getId() { return id; }
-    public Category getCategory() { return category; }
-    public String getDescription() { return description; }
-    public BigDecimal getPrice() { return price; }
-    public int getStock() { return stock; }
+    public void markAsUnavailable() {
+        this.available = false;
+    }
 }

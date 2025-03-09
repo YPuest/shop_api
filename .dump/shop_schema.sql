@@ -25,6 +25,7 @@ CREATE TABLE product (
     description TEXT,
     price REAL NOT NULL,
     stock INTEGER NOT NULL,
+    available BOOLEAN NOT NULL DEFAULT 1,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
