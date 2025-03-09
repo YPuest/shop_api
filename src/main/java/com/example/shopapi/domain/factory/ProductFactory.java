@@ -9,4 +9,8 @@ public class ProductFactory {
     public static Product createProduct(String description, BigDecimal price, int stock, Category category) {
         return new Product(description, price, stock, category);
     }
+
+    public static Product updateProduct(Product existingProduct, String description, BigDecimal price, int stock) {
+        return new Product(description, price, stock, existingProduct.getCategory());
+    }
 }
