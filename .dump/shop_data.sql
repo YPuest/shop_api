@@ -19,12 +19,17 @@ INSERT INTO address (customer_id, street, city, postal_code, country) VALUES
     (4, '456 Maple Ave', 'Anytown', '20002', 'USA'),
     (5, '789 Oak St', 'Metropolis', '30003', 'USA');
 
-INSERT INTO product (name, description, price, stock) VALUES
-    ('Laptop', 'Gaming Laptop mit RTX 3070', 1499.99, 10),
-    ('Maus', 'Kabellose Gaming-Maus', 49.99, 50),
-    ('Tastatur', 'Mechanische RGB-Tastatur', 79.99, 30),
-    ('Monitor', '27 Zoll 144Hz Gaming Monitor', 299.99, 15),
-    ('Headset', 'Noise Cancelling Gaming Headset', 129.99, 20);
+INSERT INTO category (name) VALUES
+    ('Laptop'),
+    ('Maus'),
+    ('Tastatur'),
+    ('Monitor');
+
+INSERT INTO product (category_id, description, price, stock) VALUES
+    (1, 'Gaming Laptop mit RTX 3070', 1499.99, 10),
+    (2, 'Kabellose Gaming-Maus', 49.99, 50),
+    (3, 'Mechanische RGB-Tastatur', 79.99, 30),
+    (4, '27 Zoll 144Hz Gaming Monitor', 299.99, 15);
 
 INSERT INTO orders (customer_id, status_id) VALUES
     (1, 1),
