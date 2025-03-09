@@ -3,6 +3,7 @@ package com.example.shopapi.web;
 import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.web.dto.ProductRequest;
+import com.example.shopapi.web.dto.ProductUpdateRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,5 +47,19 @@ public class ProductController {
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @RequestBody ProductUpdateRequest productUpdateRequest) {
+
+        Product updatedProduct = productService.updateProduct(
+                id,
+                productUpdateRequest.getDescription(),
+                productUpdateRequest.getPrice(),
+                productUpdateRequest.getStock()
+        );
+        return ResponseEntity.ok(updatedProduct);
     }
 }

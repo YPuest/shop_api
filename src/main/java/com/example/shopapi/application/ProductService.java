@@ -36,6 +36,22 @@ public class ProductService {
         return productRepository.save(ProductFactory.createProduct(description, price, stock, category));
     }
 
+    public Product updateProduct(Long productId, String description, BigDecimal price, int stock) {
+        Product existingProduct = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+        if (price.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero.");
+        }
+        if (stock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative.");
+        }
+
+        Product updatedProduct = ProductFactory.updateProduct(existingProduct, description, price, stock);
+
+        return productRepository.save(updatedProduct);
+    }
+
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
