@@ -14,12 +14,18 @@ CREATE TABLE address (
     FOREIGN KEY (customer_id) REFERENCES customer(id)
 );
 
+CREATE TABLE category (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE product (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
     description TEXT,
     price REAL NOT NULL,
-    stock INTEGER NOT NULL
+    stock INTEGER NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE order_status (
