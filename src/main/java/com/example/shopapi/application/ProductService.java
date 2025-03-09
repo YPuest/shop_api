@@ -1,5 +1,6 @@
 package com.example.shopapi.application;
 
+import com.example.shopapi.domain.factory.ProductFactory;
 import com.example.shopapi.domain.model.Category;
 import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.domain.repository.ProductRepository;
@@ -32,7 +33,7 @@ public class ProductService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        return productRepository.save(new Product(description, price, stock, category));
+        return productRepository.save(ProductFactory.createProduct(description, price, stock, category));
     }
 
     public List<Product> getAllProducts() {
