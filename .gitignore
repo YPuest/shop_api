@@ -1,0 +1,110 @@
+# =============================================================
+# Java-specific files
+# =============================================================
+
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Compiled class files
+*.class
+
+# Java archive and package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# =============================================================
+# ide specific files
+# =============================================================
+
+# IntelliJ
+.idea
+*.iml
+*.ipr
+*.iws
+out/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# VS Code
+.vscode/
+
+# =============================================================
+# Build and dependency management
+# =============================================================
+
+# Maven-specific files
+/target/
+/.mvn/
+
+# Gradle-specific files
+/.gradle/
+/build/
+
+# =============================================================
+# Spring Boot-specific files
+# =============================================================
+
+# Log files
+*.log
+
+# Configuration files (ignore if they contain sensitive data)
+/config/application.properties
+/config/application.yml
+
+# =============================================================
+# SQLite database files
+# =============================================================
+
+*.db-wal
+*.db-shm
+
+# =============================================================
+# Test and temporary files
+# =============================================================
+
+/test-output/
+
+# =============================================================
+# Miscellaneous files
+# =============================================================
+
+# Backup and temporary files from editors or operating systems
+*~
+*.swp
+.DS_Store
+Thumbs.db
