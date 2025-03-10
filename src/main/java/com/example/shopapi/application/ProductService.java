@@ -87,4 +87,14 @@ public class ProductService {
 
         return productRepository.findByCategoryId(categoryId);
     }
+
+    public List<Product> getAllAvailableProducts() {
+
+        return productRepository.findByAvailableTrue();
+    }
+
+    public List<Product> getLowStockProducts(int stockThreshold) {
+
+        return productRepository.findByStockLessThan(stockThreshold);
+    }
 }

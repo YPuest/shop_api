@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -82,14 +83,18 @@ class ProductServiceTest {
     }
 
     @Test
-    void updateProduct_shouldFailIfPriceIsNegative() {
+    void updateProduct_shouldFailIfPriceIsZeroOrNegative() {
         Category category = new Category("Computer");
         when(productRepository.findById(1L)).thenReturn(Optional.of(new Product("Old description", new BigDecimal("100.00"), 5, category)));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception zeroException = assertThrows(IllegalArgumentException.class, () ->
+                productService.updateProduct(1L, "New description", new BigDecimal("0.00"), 10));
+
+        Exception negativeException = assertThrows(IllegalArgumentException.class, () ->
                 productService.updateProduct(1L, "New description", new BigDecimal("-10.00"), 10));
 
-        assertEquals("Price must be greater than zero.", exception.getMessage());
+        assertEquals("Price must be greater than zero.", zeroException.getMessage());
+        assertEquals("Price must be greater than zero.", negativeException.getMessage());
     }
 
     @Test
@@ -126,5 +131,47 @@ class ProductServiceTest {
                 productService.markProductAsUnavailable(1L));
 
         assertEquals("Product is part of an active order and cannot be removed.", exception.getMessage());
+    }
+
+    @Test
+    void markProductAsUnavailable_shouldSetAvailableFalse() {
+        Category category = new Category("Computer");
+        Product existingProduct = new Product("Old description", new BigDecimal("100.00"), 5, category);
+
+        when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        when(orderItemRepository.existsByProductId(1L)).thenReturn(false);
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Product updatedProduct = productService.markProductAsUnavailable(1L);
+
+        assertFalse(updatedProduct.isAvailable(), "Product should be marked as unavailable");
+    }
+
+    @Test
+    void getAllAvailableProducts_shouldReturnOnlyAvailableProducts() {
+        List<Product> availableProducts = List.of(
+                new Product("Gaming Laptop", new BigDecimal("1499.99"), 10, new Category("Laptop")),
+                new Product("Wireless Mouse", new BigDecimal("49.99"), 30, new Category("Mouse"))
+        );
+
+        when(productRepository.findByAvailableTrue()).thenReturn(availableProducts);
+
+        List<Product> result = productService.getAllAvailableProducts();
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    void getLowStockProducts_shouldReturnProductsWithStockBelowThreshold() {
+        List<Product> lowStockProducts = List.of(
+                new Product("Mechanical Keyboard", new BigDecimal("79.99"), 3, new Category("Keyboard"))
+        );
+
+        when(productRepository.findByStockLessThan(5)).thenReturn(lowStockProducts);
+
+        List<Product> result = productService.getLowStockProducts(5);
+
+        assertEquals(1, result.size());
+        assertEquals("Mechanical Keyboard", result.get(0).getDescription());
     }
 }
