@@ -49,6 +49,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
     }
 
+    @GetMapping("/available")
+    public List<Product> getAvailableProducts() {
+
+        return productService.getAllProducts();
+    }
+
+    @GetMapping("/low-stock")
+    public List<Product> getLowStockProducts(@RequestParam(defaultValue = "5") int threshold) {
+
+        return productService.getLowStockProducts(threshold);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,

@@ -42,6 +42,16 @@ class ProductControllerTest {
     }
 
     @Test
+    void createProduct_shouldReturnBadRequestForInvalidJson() throws Exception {
+        String invalidJson = "{ \"description\": \"Laptop\", \"price\": \"invalid\" }";
+
+        mockMvc.perform(post("/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void updateProduct_shouldReturnUpdatedProduct() throws Exception {
         ProductUpdateRequest request = new ProductUpdateRequest("Updated Description", new BigDecimal("149.99"), 10);
         Product updatedProduct = new Product("Updated Description", new BigDecimal("149.99"), 10, new Category("name"));
