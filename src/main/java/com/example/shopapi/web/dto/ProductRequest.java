@@ -9,7 +9,6 @@ public class ProductRequest {
     private int stock;
     private Long categoryId;
 
-    // Getters
     public String getName() { return name; }
     public String getDescription() { return description; }
     public BigDecimal getPrice() { return price; }

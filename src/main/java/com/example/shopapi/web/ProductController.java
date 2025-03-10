@@ -62,4 +62,10 @@ public class ProductController {
         );
         return ResponseEntity.ok(updatedProduct);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> markProductAsUnavailable(@PathVariable Long id) {
+        productService.markProductAsUnavailable(id);
+        return ResponseEntity.ok("Product has been marked as unavailable.");
+    }
 }
