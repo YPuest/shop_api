@@ -2,6 +2,7 @@ package com.example.shopapi.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -24,6 +25,7 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
+    @Setter
     @Column(nullable = false)
     private int stock;
 
