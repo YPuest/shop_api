@@ -6,8 +6,6 @@ import lombok.Getter;
 import com.example.shopapi.domain.model.valueobject.Price;
 import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.domain.model.valueobject.ProductDescription;
-import com.example.shopapi.infrastructure.converter.PriceConverter;
-import com.example.shopapi.infrastructure.converter.StockConverter;
 import lombok.Setter;
 
 @Getter
