@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
+import com.example.shopapi.domain.model.valueobject.Price;
+import com.example.shopapi.infrastructure.converter.PriceConverter;
 
 @Getter
 @Entity
@@ -23,7 +24,8 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    @Convert(converter = PriceConverter.class)
+    private Price price;
 
     @Setter
     @Column(nullable = false)
@@ -34,7 +36,7 @@ public class Product {
 
     protected Product() {}
 
-    public Product(String description, BigDecimal price, int stock, Category category) {
+    public Product(String description, Price price, int stock, Category category) {
         this.description = description;
         this.price = price;
         this.stock = stock;
