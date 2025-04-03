@@ -4,6 +4,7 @@ import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Category;
 import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.domain.model.valueobject.Price;
+import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.web.dto.ProductUpdateRequest;
 import com.example.shopapi.web.exception.GlobalExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,9 +56,9 @@ class ProductControllerTest {
     @Test
     void updateProduct_shouldReturnUpdatedProduct() throws Exception {
         ProductUpdateRequest request = new ProductUpdateRequest("Updated Description", new Price(new BigDecimal("149.99")), 10);
-        Product updatedProduct = new Product("Updated Description", new Price(new BigDecimal("149.99")), 10, new Category("name"));
+        Product updatedProduct = new Product("Updated Description", new Price(new BigDecimal("149.99")), new Stock(10), new Category("name"));
 
-        when(productService.updateProduct(eq(1L), anyString(), any(), anyInt())).thenReturn(updatedProduct);
+        when(productService.updateProduct(eq(1L), anyString(), any(), any(Stock.class))).thenReturn(updatedProduct);
 
         mockMvc.perform(put("/products/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +71,7 @@ class ProductControllerTest {
 
     @Test
     void markProductAsUnavailable_shouldReturnSuccess() throws Exception {
-        when(productService.markProductAsUnavailable(1L)).thenReturn(new Product("Description", new Price(new BigDecimal("100.00")), 5, new Category("Laptop")));
+        when(productService.markProductAsUnavailable(1L)).thenReturn(new Product("Description", new Price(new BigDecimal("100.00")), new Stock(5), new Category("Laptop")));
 
         mockMvc.perform(delete("/products/1"))
                 .andExpect(status().isOk())
