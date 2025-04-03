@@ -2,6 +2,7 @@ package com.example.shopapi.web;
 
 import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Product;
+import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.web.dto.ProductRequest;
 import com.example.shopapi.web.dto.ProductResponse;
 import com.example.shopapi.web.dto.ProductUpdateRequest;
@@ -27,7 +28,7 @@ public class ProductController {
             product.getId(),
             product.getDescription(),
             product.getPrice().getAmount(),
-            product.getStock(),
+            product.getStock().getQuantity(),
             product.isAvailable()
         );
     }
@@ -37,7 +38,7 @@ public class ProductController {
         Product product = productService.createProduct(
                 productRequest.getDescription(),
                 productRequest.getPrice(),
-                productRequest.getStock(),
+                new Stock(productRequest.getStock()),
                 productRequest.getCategoryId()
         );
         return ResponseEntity.ok(mapToResponse(product));
@@ -89,14 +90,14 @@ public class ProductController {
                 id,
                 productUpdateRequest.getDescription(),
                 productUpdateRequest.getPrice(),
-                productUpdateRequest.getStock()
+                new Stock(productUpdateRequest.getStock())
         );
 
         ProductResponse response = new ProductResponse(
                 updatedProduct.getId(),
                 updatedProduct.getDescription(),
                 updatedProduct.getPrice().getAmount(),
-                updatedProduct.getStock(),
+                updatedProduct.getStock().getQuantity(),
                 updatedProduct.isAvailable()
         );
 

@@ -2,10 +2,11 @@ package com.example.shopapi.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import com.example.shopapi.domain.model.valueobject.Price;
+import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.infrastructure.converter.PriceConverter;
+import com.example.shopapi.infrastructure.converter.StockConverter;
 
 @Getter
 @Entity
@@ -27,16 +28,16 @@ public class Product {
     @Convert(converter = PriceConverter.class)
     private Price price;
 
-    @Setter
     @Column(nullable = false)
-    private int stock;
+    @Convert(converter = StockConverter.class)
+    private Stock stock;
 
     @Column(nullable = false)
     private boolean available = true;
 
     protected Product() {}
 
-    public Product(String description, Price price, int stock, Category category) {
+    public Product(String description, Price price, Stock stock, Category category) {
         this.description = description;
         this.price = price;
         this.stock = stock;
@@ -46,5 +47,13 @@ public class Product {
 
     public void markAsUnavailable() {
         this.available = false;
+    }
+
+    public Stock getStock() {
+        return stock;
+    }
+
+    public void setStock(Stock stock) {
+        this.stock = stock;
     }
 }
