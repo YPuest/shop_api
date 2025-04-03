@@ -5,8 +5,10 @@ import lombok.Getter;
 
 import com.example.shopapi.domain.model.valueobject.Price;
 import com.example.shopapi.domain.model.valueobject.Stock;
+import com.example.shopapi.domain.model.valueobject.ProductDescription;
 import com.example.shopapi.infrastructure.converter.PriceConverter;
 import com.example.shopapi.infrastructure.converter.StockConverter;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -22,14 +24,14 @@ public class Product {
     private Category category;
 
     @Column(nullable = false)
-    private String description;
+    @Setter
+    private ProductDescription description;
 
     @Column(nullable = false)
-    @Convert(converter = PriceConverter.class)
     private Price price;
 
     @Column(nullable = false)
-    @Convert(converter = StockConverter.class)
+    @Setter
     private Stock stock;
 
     @Column(nullable = false)
@@ -37,7 +39,7 @@ public class Product {
 
     protected Product() {}
 
-    public Product(String description, Price price, Stock stock, Category category) {
+    public Product(ProductDescription description, Price price, Stock stock, Category category) {
         this.description = description;
         this.price = price;
         this.stock = stock;
@@ -47,13 +49,5 @@ public class Product {
 
     public void markAsUnavailable() {
         this.available = false;
-    }
-
-    public Stock getStock() {
-        return stock;
-    }
-
-    public void setStock(Stock stock) {
-        this.stock = stock;
     }
 }
