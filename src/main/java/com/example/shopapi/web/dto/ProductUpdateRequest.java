@@ -1,13 +1,13 @@
 package com.example.shopapi.web.dto;
 
-import java.math.BigDecimal;
+import com.example.shopapi.domain.model.valueobject.Price;
 
 public class ProductUpdateRequest {
     private String description;
-    private BigDecimal price;
+    private Price price;
     private int stock;
 
-    public ProductUpdateRequest(String description, BigDecimal price, int stock) {
+    public ProductUpdateRequest(String description, Price price, int stock) {
         this.description = description;
         this.price = price;
         this.stock = stock;
@@ -16,6 +16,6 @@ public class ProductUpdateRequest {
     public ProductUpdateRequest() {}
 
     public String getDescription() { return description; }
-    public BigDecimal getPrice() { return price; }
+    public Price getPrice() { return price; }
     public int getStock() { return stock; }
 }
