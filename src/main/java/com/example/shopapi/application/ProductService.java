@@ -6,6 +6,8 @@ import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.domain.repository.OrderItemRepository;
 import com.example.shopapi.domain.repository.ProductRepository;
 import com.example.shopapi.domain.repository.CategoryRepository;
+import com.example.shopapi.domain.service.ProductDomainService;
+import com.example.shopapi.domain.service.ProductValidator;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -18,24 +20,25 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ProductValidator validator;
+    private final ProductDomainService domainService;
 
     public ProductService(
             ProductRepository productRepository,
             CategoryRepository categoryRepository,
-            OrderItemRepository orderItemRepository
+            OrderItemRepository orderItemRepository,
+            ProductValidator validator,
+            ProductDomainService domainService
     ) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.orderItemRepository = orderItemRepository;
+        this.validator = validator;
+        this.domainService = domainService;
     }
 
     public Product createProduct(String description, BigDecimal price, int stock, Long categoryId) {
-        if (price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero.");
-        }
-        if (stock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative.");
-        }
+        validator.validate(description, price, stock);
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
@@ -47,12 +50,7 @@ public class ProductService {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        if (price.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Price must be greater than zero.");
-        }
-        if (stock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative.");
-        }
+        validator.validate(description, price, stock);
 
         Product updatedProduct = ProductFactory.updateProduct(existingProduct, description, price, stock);
 
@@ -63,10 +61,7 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        boolean isInUse = orderItemRepository.existsByProductId(productId);
-        if (isInUse) {
-            throw new IllegalStateException("Product is part of an active order and cannot be removed.");
-        }
+        domainService.ensureProductCanBeMarkedAsUnavailable(productId);
 
         Product updatedProduct = ProductFactory.markAsUnavailable(product);
 

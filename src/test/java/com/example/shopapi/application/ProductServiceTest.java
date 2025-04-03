@@ -6,6 +6,8 @@ import com.example.shopapi.domain.model.Product;
 import com.example.shopapi.domain.repository.OrderItemRepository;
 import com.example.shopapi.domain.repository.ProductRepository;
 import com.example.shopapi.domain.repository.CategoryRepository;
+import com.example.shopapi.domain.service.ProductDomainService;
+import com.example.shopapi.domain.service.ProductValidator;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,6 +32,12 @@ class ProductServiceTest {
     @Mock
     private OrderItemRepository orderItemRepository;
 
+    @Mock(lenient = true)
+    private ProductValidator validator;
+
+    @Mock(lenient = true)
+    private ProductDomainService domainService;
+
     @InjectMocks
     private ProductService productService;
 
@@ -37,6 +45,7 @@ class ProductServiceTest {
     void createProduct_shouldSucceed() {
         Category category = new Category("Computer");
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        doNothing().when(validator).validate(anyString(), any(), anyInt());
 
         Product product = ProductFactory.createProduct("Powerful gaming computer", new BigDecimal("1499.99"), 10, category);
         when(productRepository.save(any(Product.class))).thenReturn(product);
@@ -62,6 +71,7 @@ class ProductServiceTest {
         Category category = new Category("Computer");
         Product existingProduct = new Product("Old description", new BigDecimal("100.00"), 5, category);
         when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        doNothing().when(validator).validate(anyString(), any(), anyInt());
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Product updatedProduct = productService.updateProduct(1L, "New description", new BigDecimal("120.00"), 10);
@@ -87,6 +97,12 @@ class ProductServiceTest {
         Category category = new Category("Computer");
         when(productRepository.findById(1L)).thenReturn(Optional.of(new Product("Old description", new BigDecimal("100.00"), 5, category)));
 
+        doThrow(new IllegalArgumentException("Price must be greater than zero."))
+            .when(validator).validate(anyString(), eq(new BigDecimal("0.00")), anyInt());
+
+        doThrow(new IllegalArgumentException("Price must be greater than zero."))
+            .when(validator).validate(anyString(), eq(new BigDecimal("-10.00")), anyInt());
+
         Exception zeroException = assertThrows(IllegalArgumentException.class, () ->
                 productService.updateProduct(1L, "New description", new BigDecimal("0.00"), 10));
 
@@ -103,7 +119,7 @@ class ProductServiceTest {
         Product existingProduct = ProductFactory.createProduct("Old description", new BigDecimal("100.00"), 5, category);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
-        when(orderItemRepository.existsByProductId(1L)).thenReturn(false);
+        doNothing().when(domainService).ensureProductCanBeMarkedAsUnavailable(anyLong());
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Product updatedProduct = productService.markProductAsUnavailable(1L);
@@ -125,7 +141,8 @@ class ProductServiceTest {
     @Test
     void markProductAsUnavailable_shouldFailIfProductIsInUse() {
         when(productRepository.findById(1L)).thenReturn(Optional.of(new Product("Description", new BigDecimal("100.00"), 5, new Category("Computer"))));
-        when(orderItemRepository.existsByProductId(1L)).thenReturn(true);
+        doThrow(new IllegalStateException("Product is part of an active order and cannot be removed."))
+            .when(domainService).ensureProductCanBeMarkedAsUnavailable(1L);
 
         Exception exception = assertThrows(IllegalStateException.class, () ->
                 productService.markProductAsUnavailable(1L));
@@ -139,7 +156,7 @@ class ProductServiceTest {
         Product existingProduct = new Product("Old description", new BigDecimal("100.00"), 5, category);
 
         when(productRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
-        when(orderItemRepository.existsByProductId(1L)).thenReturn(false);
+        doNothing().when(domainService).ensureProductCanBeMarkedAsUnavailable(anyLong());
         when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Product updatedProduct = productService.markProductAsUnavailable(1L);
