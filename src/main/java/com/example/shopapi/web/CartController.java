@@ -46,4 +46,11 @@ public class CartController {
 
         return ResponseEntity.ok(items);
     }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeFromCart(@RequestParam Long customerId,
+                                                 @RequestParam Long productId) {
+        cartService.removeProductFromCart(customerId, productId);
+        return ResponseEntity.ok("Product removed from cart.");
+    }
 }
