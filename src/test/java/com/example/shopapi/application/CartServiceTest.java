@@ -144,4 +144,39 @@ class CartServiceTest {
 
         assertEquals("Cart not found", ex.getMessage());
     }
+
+    @Test
+    void removeProductFromCart_shouldRemoveProduct() {
+        Long customerId = 1L;
+        Long productId = 10L;
+
+        Customer customer = new Customer("Max", "max@example.com");
+        Product product = new Product(
+                new ProductDescription("Gaming Monitor"),
+                new Price(new BigDecimal("299.99")),
+                new Stock(15),
+                new Category("Monitor")
+        );
+
+        Cart cart = new Cart(customer);
+        cart.addOrUpdateItem(product, 1);
+
+        when(cartRepository.findByCustomerId(customerId)).thenReturn(Optional.of(cart));
+        when(cartRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        cartService.removeProductFromCart(customerId, productId);
+
+        assertTrue(cart.getItems().isEmpty());
+        verify(cartRepository, times(1)).save(cart);
+    }
+
+    @Test
+    void removeProductFromCart_shouldThrowIfCartNotFound() {
+        when(cartRepository.findByCustomerId(99L)).thenReturn(Optional.empty());
+
+        Exception ex = assertThrows(IllegalStateException.class,
+                () -> cartService.removeProductFromCart(99L, 10L));
+
+        assertEquals("Cart not found", ex.getMessage());
+    }
 }

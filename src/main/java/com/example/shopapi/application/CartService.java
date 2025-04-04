@@ -87,6 +87,15 @@ public class CartService {
         cartRepository.delete(cart);
     }
 
+    @Transactional
+    public void removeProductFromCart(Long customerId, Long productId) {
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new IllegalStateException("Cart not found"));
+
+        cart.removeItem(productId);
+        cartRepository.save(cart);
+    }
+
     public Cart getCart(Long customerId) {
         return cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for customer"));

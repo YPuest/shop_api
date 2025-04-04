@@ -89,4 +89,15 @@ class CartControllerTest {
 
         verify(cartService, times(1)).checkout(1L);
     }
+
+    @Test
+    void removeFromCart_shouldReturnOk() throws Exception {
+        mockMvc.perform(delete("/cart/remove")
+                        .param("customerId", "1")
+                        .param("productId", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Product removed from cart."));
+
+        verify(cartService, times(1)).removeProductFromCart(1L, 10L);
+    }
 }
