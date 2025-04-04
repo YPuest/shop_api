@@ -18,7 +18,7 @@ public class ProductDomainService {
     }
 
     public void reduceStock(Product product, int quantity) {
-        if (product.getStock().hasEnough(quantity)) {
+        if (!product.getStock().hasEnough(quantity)) {
             throw new IllegalStateException("Not enough stock.");
         }
         product.getStock().decrease(quantity);
