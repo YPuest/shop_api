@@ -2,7 +2,10 @@ package com.example.shopapi.web;
 
 import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Product;
+import com.example.shopapi.domain.model.valueobject.ProductDescription;
+import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.web.dto.ProductRequest;
+import com.example.shopapi.web.dto.ProductResponse;
 import com.example.shopapi.web.dto.ProductUpdateRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,58 +24,85 @@ public class ProductController {
         this.productService = productService;
     }
 
+    private ProductResponse mapToResponse(Product product) {
+        return new ProductResponse(
+            product.getId(),
+            product.getDescription().getValue(),
+            product.getPrice().getAmount(),
+            product.getStock().getQuantity(),
+            product.isAvailable()
+        );
+    }
+
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody ProductRequest productRequest) {
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
         Product product = productService.createProduct(
-                productRequest.getDescription(),
+                new ProductDescription(productRequest.getDescription()),
                 productRequest.getPrice(),
-                productRequest.getStock(),
+                new Stock(productRequest.getStock()),
                 productRequest.getCategoryId()
         );
-        return ResponseEntity.ok(product);
+        return ResponseEntity.ok(mapToResponse(product));
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<ProductResponse>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts()
+                .stream()
+                .map(this::mapToResponse)
+                .toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
         Optional<Product> product = productService.getProductById(id);
-        return product.map(ResponseEntity::ok)
+        return product.map(p -> ResponseEntity.ok(mapToResponse(p)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
-        return ResponseEntity.ok(productService.getProductsByCategory(categoryId));
+    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable Long categoryId) {
+        return ResponseEntity.ok(productService.getProductsByCategory(categoryId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList());
     }
 
     @GetMapping("/available")
-    public List<Product> getAvailableProducts() {
-
-        return productService.getAllProducts();
+    public List<ProductResponse> getAvailableProducts() {
+        return productService.getAllProducts().stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @GetMapping("/low-stock")
-    public List<Product> getLowStockProducts(@RequestParam(defaultValue = "5") int threshold) {
-
-        return productService.getLowStockProducts(threshold);
+    public List<ProductResponse> getLowStockProducts(@RequestParam(defaultValue = "5") int threshold) {
+        return productService.getLowStockProducts(threshold).stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable Long id,
             @RequestBody ProductUpdateRequest productUpdateRequest) {
 
         Product updatedProduct = productService.updateProduct(
                 id,
-                productUpdateRequest.getDescription(),
+                new ProductDescription(productUpdateRequest.getDescription()),
                 productUpdateRequest.getPrice(),
-                productUpdateRequest.getStock()
+                new Stock(productUpdateRequest.getStock())
         );
-        return ResponseEntity.ok(updatedProduct);
+
+        ProductResponse response = new ProductResponse(
+                updatedProduct.getId(),
+                updatedProduct.getDescription().getValue(),
+                updatedProduct.getPrice().getAmount(),
+                updatedProduct.getStock().getQuantity(),
+                updatedProduct.isAvailable()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")

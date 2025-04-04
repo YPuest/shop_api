@@ -3,6 +3,9 @@ package com.example.shopapi.application;
 import com.example.shopapi.domain.factory.ProductFactory;
 import com.example.shopapi.domain.model.Category;
 import com.example.shopapi.domain.model.Product;
+import com.example.shopapi.domain.model.valueobject.Price;
+import com.example.shopapi.domain.model.valueobject.ProductDescription;
+import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.domain.repository.OrderItemRepository;
 import com.example.shopapi.domain.repository.ProductRepository;
 import com.example.shopapi.domain.repository.CategoryRepository;
@@ -37,8 +40,8 @@ public class ProductService {
         this.domainService = domainService;
     }
 
-    public Product createProduct(String description, BigDecimal price, int stock, Long categoryId) {
-        validator.validate(description, price, stock);
+    public Product createProduct(ProductDescription description, Price price, Stock stock, Long categoryId) {
+        validator.validate(description, stock);
 
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
@@ -46,11 +49,11 @@ public class ProductService {
         return productRepository.save(ProductFactory.createProduct(description, price, stock, category));
     }
 
-    public Product updateProduct(Long productId, String description, BigDecimal price, int stock) {
+    public Product updateProduct(Long productId, ProductDescription description, Price price, Stock stock) {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
-        validator.validate(description, price, stock);
+        validator.validate(description, stock);
 
         Product updatedProduct = ProductFactory.updateProduct(existingProduct, description, price, stock);
 

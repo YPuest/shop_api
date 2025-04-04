@@ -14,14 +14,14 @@ public class ProductDomainService {
     }
 
     public boolean isAvailable(Product product) {
-        return product.isAvailable() && product.getStock() > 0;
+        return product.isAvailable() && product.getStock().hasEnough(1);
     }
 
     public void reduceStock(Product product, int quantity) {
-        if (product.getStock() < quantity) {
+        if (product.getStock().hasEnough(quantity)) {
             throw new IllegalStateException("Not enough stock.");
         }
-        product.setStock(product.getStock() - quantity);
+        product.getStock().decrease(quantity);
     }
 
     public void ensureProductCanBeMarkedAsUnavailable(Long productId) {

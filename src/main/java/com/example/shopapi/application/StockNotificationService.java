@@ -29,9 +29,9 @@ public class StockNotificationService {
 
             System.out.println(RED + "LOW STOCK WARNING!" + RESET);
             for (Product product : lowStockProducts) {
-                System.out.println(RED + "Product: " + YELLOW + product.getDescription() + RED + " - Only " + product.getStock() + " units left!" + RESET);
+                System.out.println(RED + "Product: " + YELLOW + product.getDescription().getValue() + RED + " - Only " + product.getStock().getQuantity() + " units left!" + RESET);
 
-                emailService.sendLowStockAlert("admin@example.com", product.getDescription(), product.getStock());
+                emailService.sendLowStockAlert("admin@example.com", product.getDescription().getValue(), product.getStock().getQuantity());
             }
         }
     }

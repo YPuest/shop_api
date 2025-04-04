@@ -2,9 +2,11 @@ package com.example.shopapi.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
-import java.math.BigDecimal;
+import com.example.shopapi.domain.model.valueobject.Price;
+import com.example.shopapi.domain.model.valueobject.Stock;
+import com.example.shopapi.domain.model.valueobject.ProductDescription;
+import lombok.Setter;
 
 @Getter
 @Entity
@@ -20,21 +22,22 @@ public class Product {
     private Category category;
 
     @Column(nullable = false)
-    private String description;
-
-    @Column(nullable = false)
-    private BigDecimal price;
-
     @Setter
+    private ProductDescription description;
+
     @Column(nullable = false)
-    private int stock;
+    private Price price;
+
+    @Column(nullable = false)
+    @Setter
+    private Stock stock;
 
     @Column(nullable = false)
     private boolean available = true;
 
     protected Product() {}
 
-    public Product(String description, BigDecimal price, int stock, Category category) {
+    public Product(ProductDescription description, Price price, Stock stock, Category category) {
         this.description = description;
         this.price = price;
         this.stock = stock;
