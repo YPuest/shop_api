@@ -2,6 +2,7 @@ package com.example.shopapi.web;
 
 import com.example.shopapi.application.ProductService;
 import com.example.shopapi.domain.model.Product;
+import com.example.shopapi.domain.model.valueobject.ProductDescription;
 import com.example.shopapi.domain.model.valueobject.Stock;
 import com.example.shopapi.web.dto.ProductRequest;
 import com.example.shopapi.web.dto.ProductResponse;
@@ -26,7 +27,7 @@ public class ProductController {
     private ProductResponse mapToResponse(Product product) {
         return new ProductResponse(
             product.getId(),
-            product.getDescription(),
+            product.getDescription().getValue(),
             product.getPrice().getAmount(),
             product.getStock().getQuantity(),
             product.isAvailable()
@@ -36,7 +37,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
         Product product = productService.createProduct(
-                productRequest.getDescription(),
+                new ProductDescription(productRequest.getDescription()),
                 productRequest.getPrice(),
                 new Stock(productRequest.getStock()),
                 productRequest.getCategoryId()
@@ -88,14 +89,14 @@ public class ProductController {
 
         Product updatedProduct = productService.updateProduct(
                 id,
-                productUpdateRequest.getDescription(),
+                new ProductDescription(productUpdateRequest.getDescription()),
                 productUpdateRequest.getPrice(),
                 new Stock(productUpdateRequest.getStock())
         );
 
         ProductResponse response = new ProductResponse(
                 updatedProduct.getId(),
-                updatedProduct.getDescription(),
+                updatedProduct.getDescription().getValue(),
                 updatedProduct.getPrice().getAmount(),
                 updatedProduct.getStock().getQuantity(),
                 updatedProduct.isAvailable()
