@@ -100,4 +100,28 @@ class CartControllerTest {
 
         verify(cartService, times(1)).removeProductFromCart(1L, 10L);
     }
+
+    @Test
+    void getCart_shouldReturnItemsWithTotal() throws Exception {
+        Product product = new Product(
+                new ProductDescription("Tastatur"),
+                new Price(new BigDecimal("79.99")),
+                new Stock(30),
+                new Category("Tastatur")
+        );
+        Customer customer = new Customer("Erika", "erika@example.com");
+        Cart cart = new Cart(customer);
+        cart.addOrUpdateItem(product, 2);
+
+        when(cartService.getCart(1L)).thenReturn(cart);
+
+        mockMvc.perform(get("/cart")
+                        .param("customerId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].productId").value(product.getId()))
+                .andExpect(jsonPath("$.items[0].description").value("Tastatur"))
+                .andExpect(jsonPath("$.items[0].price").value(79.99))
+                .andExpect(jsonPath("$.items[0].quantity").value(2))
+                .andExpect(jsonPath("$.total").value(159.98));
+    }
 }

@@ -5,9 +5,11 @@ import com.example.shopapi.domain.model.Cart;
 import com.example.shopapi.domain.model.CartItem;
 import com.example.shopapi.web.dto.CartAddRequest;
 import com.example.shopapi.web.dto.CartItemResponse;
+import com.example.shopapi.web.dto.CartResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,17 +36,22 @@ public class CartController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CartItemResponse>> getCart(@RequestParam Long customerId) {
+    public ResponseEntity<CartResponse> getCart(@RequestParam Long customerId) {
         Cart cart = cartService.getCart(customerId);
+
         List<CartItemResponse> items = cart.getItems().stream()
                 .map(item -> new CartItemResponse(
                         item.getProduct().getId(),
                         item.getProduct().getDescription().getValue(),
                         item.getProduct().getPrice().getAmount(),
                         item.getQuantity()))
-                .collect(Collectors.toList());
+                .toList();
 
-        return ResponseEntity.ok(items);
+        BigDecimal total = items.stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return ResponseEntity.ok(new CartResponse(items, total));
     }
 
     @DeleteMapping("/remove")
