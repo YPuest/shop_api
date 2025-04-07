@@ -45,6 +45,14 @@ public class Product {
         this.available = true;
     }
 
+    public boolean hasStock(int quantity) {
+        return stock.hasEnough(quantity);
+    }
+
+    public void decreaseStock(int quantity) {
+        stock.decrease(quantity);
+    }
+
     public void markAsUnavailable() {
         this.available = false;
     }

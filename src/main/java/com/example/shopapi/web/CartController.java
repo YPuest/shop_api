@@ -6,6 +6,7 @@ import com.example.shopapi.domain.model.CartItem;
 import com.example.shopapi.web.dto.CartAddRequest;
 import com.example.shopapi.web.dto.CartItemResponse;
 import com.example.shopapi.web.dto.CartResponse;
+import com.example.shopapi.web.dto.CheckoutResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +31,9 @@ public class CartController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<String> checkout(@RequestParam Long customerId) {
-        cartService.checkout(customerId);
-        return ResponseEntity.ok("Checkout completed. Order has been created.");
+    public ResponseEntity<CheckoutResponse> checkout(@RequestParam Long customerId) {
+        Long orderId = cartService.checkoutAndReturnOrderId(customerId);
+        return ResponseEntity.ok(new CheckoutResponse(orderId, "Checkout completed. Order has been created."));
     }
 
     @GetMapping

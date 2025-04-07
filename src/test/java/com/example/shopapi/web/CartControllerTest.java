@@ -124,4 +124,17 @@ class CartControllerTest {
                 .andExpect(jsonPath("$.items[0].quantity").value(2))
                 .andExpect(jsonPath("$.total").value(159.98));
     }
+
+    @Test
+    void checkout_shouldReturnOrderIdInResponse() throws Exception {
+        when(cartService.checkoutAndReturnOrderId(1L)).thenReturn(123L);
+
+        mockMvc.perform(post("/cart/checkout")
+                        .param("customerId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.orderId").value(123))
+                .andExpect(jsonPath("$.message").value("Checkout completed. Order has been created."));
+
+        verify(cartService, times(1)).checkoutAndReturnOrderId(1L);
+    }
 }

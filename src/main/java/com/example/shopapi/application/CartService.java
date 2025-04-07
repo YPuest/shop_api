@@ -100,4 +100,38 @@ public class CartService {
         return cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("Cart not found for customer"));
     }
+
+    @Transactional
+    public Long checkoutAndReturnOrderId(Long customerId) {
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new IllegalStateException("Cart not found"));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalStateException("Cart is empty");
+        }
+
+        OrderStatus status = orderStatusRepository.findByStatus("Pending")
+                .orElseThrow(() -> new IllegalStateException("Order status 'Pending' not found"));
+
+        Order order = new Order(cart.getCustomer(), status);
+        order = orderRepository.save(order);
+
+        for (CartItem cartItem : cart.getItems()) {
+            Product product = cartItem.getProduct();
+            int quantity = cartItem.getQuantity();
+
+            if (!product.isAvailable() || !product.hasStock(quantity)) {
+                throw new IllegalStateException("Product " + product.getId() + " is not available in required quantity.");
+            }
+
+            product.decreaseStock(quantity);
+            productRepository.save(product);
+
+            OrderItem orderItem = new OrderItem(order, product, quantity);
+            orderItemRepository.save(orderItem);
+        }
+
+        cartRepository.delete(cart);
+        return order.getId();
+    }
 }

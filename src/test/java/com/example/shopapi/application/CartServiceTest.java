@@ -9,6 +9,7 @@ import com.example.shopapi.domain.service.ProductDomainService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -178,5 +179,43 @@ class CartServiceTest {
                 () -> cartService.removeProductFromCart(99L, 10L));
 
         assertEquals("Cart not found", ex.getMessage());
+    }
+
+    @Test
+    void checkoutAndReturnOrderId_shouldCreateOrderAndReturnId() throws Exception {
+        Long customerId = 1L;
+
+        Customer customer = new Customer("Max", "max@example.com");
+        Product product = new Product(
+                new ProductDescription("Tastatur"),
+                new Price(new BigDecimal("79.99")),
+                new Stock(10),
+                new Category("Tastatur")
+        );
+        Cart cart = new Cart(customer);
+        cart.addOrUpdateItem(product, 2);
+
+        OrderStatus status = new OrderStatus("Pending");
+
+        when(cartRepository.findByCustomerId(customerId)).thenReturn(Optional.of(cart));
+        when(orderStatusRepository.findByStatus("Pending")).thenReturn(Optional.of(status));
+
+        when(orderRepository.save(any(Order.class)))
+                .thenAnswer(invocation -> {
+                    Order order = invocation.getArgument(0);
+                    Field idField = Order.class.getDeclaredField("id");
+                    idField.setAccessible(true);
+                    idField.set(order, 123L);
+                    return order;
+                });
+
+        when(domainService.isAvailable(product)).thenReturn(true);
+
+        Long orderId = cartService.checkoutAndReturnOrderId(customerId);
+
+        assertEquals(123L, orderId);
+        assertEquals(8, product.getStock().getQuantity()); // 10 - 2
+        verify(cartRepository).delete(cart);
+        verify(orderItemRepository).save(any(OrderItem.class));
     }
 }
